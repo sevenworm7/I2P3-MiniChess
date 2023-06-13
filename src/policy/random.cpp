@@ -3,6 +3,7 @@
 #include "../state/state.hpp"
 #include "./random.hpp"
 
+//implement MiniMax and AlphaBeta-pruning policy with two more file
 
 /**
  * @brief Randomly get a legal action

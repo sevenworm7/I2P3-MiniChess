@@ -5,6 +5,8 @@
 #include "../state/state.hpp"
 #include "../policy/random.hpp"
 
+//it just print something?! only the last move will be valid
+//10 second, 4 gb
 
 State* root;
 

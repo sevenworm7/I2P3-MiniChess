@@ -11,7 +11,7 @@
  * 
  * @return int 
  */
-int State::evaluate(){
+int State::evaluate(){ //state value function
   // [TODO] design your own evaluation function
   return 0;
 }
