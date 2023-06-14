@@ -1,10 +1,59 @@
 #include <iostream>
 #include <sstream>
 #include <cstdint>
+#include <cmath>
 
 #include "./state.hpp"
 #include "../config.hpp"
 
+enum Chess{
+  empty = '0', pawn = '1', rook = '2', knight = '3', bishop = '4', queen = '5', king = '6'
+}; //add
+
+//additional function 
+//calculate position correspond to attacking possibility
+int attacking_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int player){
+  const int mul = 10;
+  int opponent = (player + 1) % 2;
+  int value = 0;
+
+  //havent deal with go-through attack
+  for(int i = 0; i < BOARD_H; i++){
+    for(int j = 0; j < BOARD_W; j++){
+      switch((int)board[opponent][i][j]){
+        case pawn:
+          if((opponent == 0 && i-x==1 && std::abs(j-y)==1)
+          || (opponent == 1 && x-i==1 && std::abs(y-j)==1))
+            value += 18; //eating possibility
+          break;
+        case rook: 
+          if(std::abs(i-x)==0 || std::abs(j-y)==0)
+            value += 15/2; //15 //for go-through possibility deduct
+          break;
+        case knight: 
+          if((std::abs(i-x)==1 && std::abs(j-y)==2)
+          || (std::abs(i-x)==2 && std::abs(j-y)==1))
+            value += 15;
+          break;
+        case bishop: 
+          if(std::abs(i-x) == std::abs(j-y))
+            value += 15/2; //15 //for go-through possibility deduct
+          break;
+        case queen: 
+          if(std::abs(i-x) == std::abs(j-y) || std::abs(i-x)==0 || std::abs(j-y)==0)
+            value += 12/2; //12 //for go-through possibility deduct
+          break;
+        case king: 
+          if(std::abs(i-x)<=1 && std::abs(j-y)<=1)
+            value += 10;
+          break;
+        default: 
+          break;
+      }
+    }
+  }
+  return value / mul;
+}
 
 /**
  * @brief evaluate the state
@@ -13,7 +62,29 @@
  */
 int State::evaluate(){ //state value function
   // [TODO] design your own evaluation function
-  return 0;
+  const int mul = 10;
+  int value = 0;
+  int tmp;
+  
+  for(int i = 0; i < BOARD_H; i++){
+    for(int j = 0; j < BOARD_W; j++){
+      tmp = 0;
+      switch(board.board[player][i][j]){
+        case pawn: player==1 ? tmp=i : tmp=BOARD_H-i; break; //distance to become queen
+        case rook: tmp = 5; break;
+        case knight: tmp = 4; break;
+        case bishop: tmp = 5; break;
+        case queen: tmp = 8; break;
+        case king: tmp = 66666; break;
+        default: break;
+      }
+      if(tmp != 0){
+        tmp *= (mul - attacking_possibility(i, j, board.board, player));
+        value += tmp;
+      }
+    }
+  }
+  return value;
 }
 
 

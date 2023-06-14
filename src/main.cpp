@@ -8,7 +8,7 @@
 #include <cstdint>
 
 #include "config.hpp"
-/*
+/* some command
 cd /mnt/c/Users/Jay/Documents/GitHub/I2P3-MiniChess
 ./build/main ./build/player_random ./build/player_random
 */
@@ -410,6 +410,9 @@ int main(int argc, char** argv) {
   
   std::cout << "Player White File: " << player_filename[1] << std::endl;
   std::cout << "Player Black File: " << player_filename[2] << std::endl;
+  log << "Player White File: " << player_filename[1] << std::endl; //add
+  log << "Player Black File: " << player_filename[2] << std::endl; //add
+  log << std::endl; //add
   
   State game; game.get_legal_actions();
   State *temp;

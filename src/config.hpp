@@ -7,7 +7,7 @@
 /*You can modify these things in development for fast testing*/
 /*When TA run your program, we will use default settings (123, 10, 50)*/
 #define RANDOM_SEED 123
-#define timeout 3 
+#define timeout 1
 #define MAX_STEP 50
 
 
@@ -27,3 +27,4 @@ const char PIECE_TABLE[2][7][5] = {
   {"  ", "wP", "wR", "wK", "wB", "wQ", "wK"},
   {"  ", "bP", "bR", "bK", "bB", "bQ", "bK"},
 };
+//empty, pawn, rook, knight, bishop, queen, king
