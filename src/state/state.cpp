@@ -62,26 +62,37 @@ int attacking_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int pla
  */
 int State::evaluate(){ //state value function
   // [TODO] design your own evaluation function
-  const int mul = 10;
+  const int self_mul = 10;
+  const int oppo_mul = 3;
   int value = 0;
-  int tmp;
+  int self_chess_value, oppo_chess_value;
   
   for(int i = 0; i < BOARD_H; i++){
     for(int j = 0; j < BOARD_W; j++){
-      tmp = 0;
+      //self chess value determine
       switch(board.board[player][i][j]){
-        case pawn: player==1 ? tmp=i : tmp=BOARD_H-i; break; //distance to become queen
-        case rook: tmp = 5; break;
-        case knight: tmp = 4; break;
-        case bishop: tmp = 5; break;
-        case queen: tmp = 8; break;
-        case king: tmp = 66666; break;
-        default: break;
+        case pawn: player==1 ? self_chess_value=i : self_chess_value=BOARD_H-i; break; //distance to become queen
+        case rook: self_chess_value = 5; break;
+        case knight: self_chess_value = 4; break;
+        case bishop: self_chess_value = 5; break;
+        case queen: self_chess_value = 8; break;
+        case king: self_chess_value = 66666; break;
+        default: self_chess_value = 0; break;
       }
-      //add something to judge opponent's chess num
-      if(tmp != 0){
-        tmp *= (mul - attacking_possibility(i, j, board.board, player));
-        value += tmp;
+      //opponent chess value determine
+      switch(board.board[1-player][i][j]){
+        case pawn: player==1 ? oppo_chess_value=i : oppo_chess_value=BOARD_H-i; break; //distance to become queen
+        case rook: oppo_chess_value = 5; break;
+        case knight: oppo_chess_value = 4; break;
+        case bishop: oppo_chess_value = 5; break;
+        case queen: oppo_chess_value = 8; break;
+        case king: oppo_chess_value = 66666; break;
+        default: oppo_chess_value = 0; break;
+      }
+      if(self_chess_value != 0){
+        self_chess_value *= (self_mul - attacking_possibility(i, j, board.board, player));
+        self_chess_value -= (oppo_chess_value * oppo_mul);
+        value += self_chess_value;
       }
     }
   }
@@ -111,7 +122,7 @@ State* State::next_state(Move move){
   next.board[this->player][from.first][from.second] = 0;
   next.board[this->player][to.first][to.second] = moved;
   
-  State* next_state = new State(next, 1-this->player);
+  State* next_state = new State(next, 1-this->player); //change the player
   
   if(this->game_state != WIN)
     next_state->get_legal_actions();

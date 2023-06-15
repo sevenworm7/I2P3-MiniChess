@@ -12,6 +12,7 @@
 /* some command
 cd /mnt/c/Users/Jay/Documents/GitHub/I2P3-MiniChess
 ./build/main ./build/player_random ./build/player_random
+./build/main ./build/player_minimax ./build/player_random
 */
 
 /*Board Size, Don't change!*/
