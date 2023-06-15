@@ -78,6 +78,7 @@ int State::evaluate(){ //state value function
         case king: tmp = 66666; break;
         default: break;
       }
+      //add something to judge opponent's chess num
       if(tmp != 0){
         tmp *= (mul - attacking_possibility(i, j, board.board, player));
         value += tmp;
