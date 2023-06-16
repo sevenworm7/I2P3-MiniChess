@@ -13,7 +13,7 @@ enum Chess{
 
 //calculate position correspond to attacked possibility
 int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int player){
-  const int mul = 2;
+  const int div = 3;
   int opponent = 1 - player;
   int value = 0;
 
@@ -23,7 +23,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
         case pawn:
           if((opponent == 0 && i-x==1 && std::abs(j-y)==1)
           || (opponent == 1 && x-i==1 && std::abs(y-j)==1))
-            value += 18; //eating possibility
+            value += 10; //eating possibility
           break;
         case rook: 
           if(i-x==0 || j-y==0){
@@ -31,7 +31,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
             int yy = y-j!=0 ? (y-j)/std::abs(y-j) : 0;
             for(int k = 1; ; k++){
               if(i + xx*k == x && j + yy*k == y){
-                value += 14;
+                value += 8;
                 break;
               }else if(board[player][i + xx*k][j + yy*k] != empty 
               || board[opponent][i + xx*k][j + yy*k] != empty) break;
@@ -41,7 +41,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
         case knight: 
           if((std::abs(i-x)==1 && std::abs(j-y)==2)
           || (std::abs(i-x)==2 && std::abs(j-y)==1))
-            value += 14;
+            value += 8;
           break;
         case bishop: 
           if(std::abs(i-x) == std::abs(j-y)){
@@ -49,7 +49,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
             int yy = (y-j)/std::abs(y-j);
             for(int k = 1; ; k++){
               if(i + xx*k == x && j + yy*k == y){
-                value += 14;
+                value += 8;
                 break;
               }else if(board[player][i + xx*k][j + yy*k] != empty 
               || board[opponent][i + xx*k][j + yy*k] != empty) break;
@@ -62,7 +62,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
             int yy = y-j!=0 ? (y-j)/std::abs(y-j) : 0;
             for(int k = 1; ; k++){
               if(i + xx*k == x && j + yy*k == y){
-                value += 13;
+                value += 7;
                 break;
               }else if(board[player][i + xx*k][j + yy*k] != empty 
               || board[opponent][i + xx*k][j + yy*k] != empty) break;
@@ -70,14 +70,14 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
           }
           break;
         case king: 
-          if(std::abs(i-x)<=1 && std::abs(j-y)<=1) value += 10;
+          if(std::abs(i-x)<=1 && std::abs(j-y)<=1) value += 6;
           break;
         default: 
           break;
       }
     }
   }
-  return value / mul; //normally ?
+  return value / div;
 }
 
 /**
@@ -88,7 +88,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
 int State::evaluate(){ //state value function
   // [TODO] design your own evaluation function
   const int self_mul = 10;
-  const int oppo_mul = 8;
+  const int oppo_mul = 9;
   int attacked_poss_mul;
 
   int value = 0;
@@ -98,24 +98,24 @@ int State::evaluate(){ //state value function
     for(int j = 0; j < BOARD_W; j++){
       //self chess value determine
       switch((int)board.board[player][i][j]){
-        case pawn: player == 1 ? self_chess_value = attacked_poss_mul = i / 1.5 
-          : self_chess_value = attacked_poss_mul = (BOARD_H - i) / 1.5; break; //distance to become queen
-        case rook: self_chess_value = attacked_poss_mul = 5; break;
-        case knight: self_chess_value = attacked_poss_mul = 4; break;
-        case bishop: self_chess_value = attacked_poss_mul = 5; break;
-        case queen: self_chess_value = attacked_poss_mul = 8; break;
+        case pawn: player == 1 ? self_chess_value = attacked_poss_mul = 2 + i / 2
+          : self_chess_value = attacked_poss_mul = 2 + (BOARD_H - i) / 2; break; //distance to become queen
+        case rook: self_chess_value = attacked_poss_mul = 12; break;
+        case knight: self_chess_value = attacked_poss_mul = 9; break;
+        case bishop: self_chess_value = attacked_poss_mul = 12; break;
+        case queen: self_chess_value = attacked_poss_mul = 15; break;
         case king: self_chess_value = attacked_poss_mul = 66666666; break;
         default: self_chess_value = attacked_poss_mul = 0; break;
       }
       //opponent chess value determine
       switch((int)board.board[1-player][i][j]){
-        case pawn: player == 0 ? oppo_chess_value = i / 1.5 
-          : oppo_chess_value = (BOARD_H - i) / 1.5; break; //distance to become queen
-        case rook: oppo_chess_value = 5; break;
-        case knight: oppo_chess_value = 4; break;
-        case bishop: oppo_chess_value = 5; break;
-        case queen: oppo_chess_value = 8; break;
-        case king: oppo_chess_value = 66666; break;
+        case pawn: player == 0 ? oppo_chess_value = 2 + i / 2 
+          : oppo_chess_value = 2 + (BOARD_H - i) / 2; break; //distance to become queen
+        case rook: oppo_chess_value = 12; break;
+        case knight: oppo_chess_value = 9; break;
+        case bishop: oppo_chess_value = 12; break;
+        case queen: oppo_chess_value = 15; break;
+        case king: oppo_chess_value = 66666666; break;
         default: oppo_chess_value = 0; break;
       }
       //attacked possibility
