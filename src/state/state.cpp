@@ -2,22 +2,21 @@
 #include <sstream>
 #include <cstdint>
 #include <cmath>
+#include <algorithm>
 
 #include "./state.hpp"
 #include "../config.hpp"
 
 enum Chess{
-  empty = '0', pawn = '1', rook = '2', knight = '3', bishop = '4', queen = '5', king = '6'
+  empty = 0, pawn = 1, rook = 2, knight = 3, bishop = 4, queen = 5, king = 6
 }; //add
 
-//additional function 
-//calculate position correspond to attacking possibility
-int attacking_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int player){
-  const int mul = 10;
-  int opponent = (player + 1) % 2;
+//calculate position correspond to attacked possibility
+int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int player){
+  const int mul = 2;
+  int opponent = 1 - player;
   int value = 0;
 
-  //havent deal with go-through attack
   for(int i = 0; i < BOARD_H; i++){
     for(int j = 0; j < BOARD_W; j++){
       switch((int)board[opponent][i][j]){
@@ -27,32 +26,58 @@ int attacking_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int pla
             value += 18; //eating possibility
           break;
         case rook: 
-          if(std::abs(i-x)==0 || std::abs(j-y)==0)
-            value += 15/2; //15 //for go-through possibility deduct
+          if(i-x==0 || j-y==0){
+            int xx = x-i!=0 ? (x-i)/std::abs(x-i) : 0;
+            int yy = y-j!=0 ? (y-j)/std::abs(y-j) : 0;
+            for(int k = 1; ; k++){
+              if(i + xx*k == x && j + yy*k == y){
+                value += 14;
+                break;
+              }else if(board[player][i + xx*k][j + yy*k] != empty 
+              || board[opponent][i + xx*k][j + yy*k] != empty) break;
+            }
+          }
           break;
         case knight: 
           if((std::abs(i-x)==1 && std::abs(j-y)==2)
           || (std::abs(i-x)==2 && std::abs(j-y)==1))
-            value += 15;
+            value += 14;
           break;
         case bishop: 
-          if(std::abs(i-x) == std::abs(j-y))
-            value += 15/2; //15 //for go-through possibility deduct
+          if(std::abs(i-x) == std::abs(j-y)){
+            int xx = (x-i)/std::abs(x-i);
+            int yy = (y-j)/std::abs(y-j);
+            for(int k = 1; ; k++){
+              if(i + xx*k == x && j + yy*k == y){
+                value += 14;
+                break;
+              }else if(board[player][i + xx*k][j + yy*k] != empty 
+              || board[opponent][i + xx*k][j + yy*k] != empty) break;
+            }
+          }
           break;
         case queen: 
-          if(std::abs(i-x) == std::abs(j-y) || std::abs(i-x)==0 || std::abs(j-y)==0)
-            value += 12/2; //12 //for go-through possibility deduct
+          if(std::abs(i-x) == std::abs(j-y) || std::abs(i-x)==0 || std::abs(j-y)==0){
+            int xx = x-i!=0 ? (x-i)/std::abs(x-i) : 0;
+            int yy = y-j!=0 ? (y-j)/std::abs(y-j) : 0;
+            for(int k = 1; ; k++){
+              if(i + xx*k == x && j + yy*k == y){
+                value += 13;
+                break;
+              }else if(board[player][i + xx*k][j + yy*k] != empty 
+              || board[opponent][i + xx*k][j + yy*k] != empty) break;
+            }
+          }
           break;
         case king: 
-          if(std::abs(i-x)<=1 && std::abs(j-y)<=1)
-            value += 10;
+          if(std::abs(i-x)<=1 && std::abs(j-y)<=1) value += 10;
           break;
         default: 
           break;
       }
     }
   }
-  return value / mul;
+  return value / mul; //normally ?
 }
 
 /**
@@ -63,25 +88,29 @@ int attacking_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int pla
 int State::evaluate(){ //state value function
   // [TODO] design your own evaluation function
   const int self_mul = 10;
-  const int oppo_mul = 3;
+  const int oppo_mul = 8;
+  int attacked_poss_mul;
+
   int value = 0;
-  int self_chess_value, oppo_chess_value;
+  int self_chess_value, oppo_chess_value, attacked_poss_value;
   
   for(int i = 0; i < BOARD_H; i++){
     for(int j = 0; j < BOARD_W; j++){
       //self chess value determine
-      switch(board.board[player][i][j]){
-        case pawn: player==1 ? self_chess_value=i : self_chess_value=BOARD_H-i; break; //distance to become queen
-        case rook: self_chess_value = 5; break;
-        case knight: self_chess_value = 4; break;
-        case bishop: self_chess_value = 5; break;
-        case queen: self_chess_value = 8; break;
-        case king: self_chess_value = 66666; break;
-        default: self_chess_value = 0; break;
+      switch((int)board.board[player][i][j]){
+        case pawn: player == 1 ? self_chess_value = attacked_poss_mul = i / 1.5 
+          : self_chess_value = attacked_poss_mul = (BOARD_H - i) / 1.5; break; //distance to become queen
+        case rook: self_chess_value = attacked_poss_mul = 5; break;
+        case knight: self_chess_value = attacked_poss_mul = 4; break;
+        case bishop: self_chess_value = attacked_poss_mul = 5; break;
+        case queen: self_chess_value = attacked_poss_mul = 8; break;
+        case king: self_chess_value = attacked_poss_mul = 66666666; break;
+        default: self_chess_value = attacked_poss_mul = 0; break;
       }
       //opponent chess value determine
-      switch(board.board[1-player][i][j]){
-        case pawn: player==1 ? oppo_chess_value=i : oppo_chess_value=BOARD_H-i; break; //distance to become queen
+      switch((int)board.board[1-player][i][j]){
+        case pawn: player == 0 ? oppo_chess_value = i / 1.5 
+          : oppo_chess_value = (BOARD_H - i) / 1.5; break; //distance to become queen
         case rook: oppo_chess_value = 5; break;
         case knight: oppo_chess_value = 4; break;
         case bishop: oppo_chess_value = 5; break;
@@ -89,13 +118,14 @@ int State::evaluate(){ //state value function
         case king: oppo_chess_value = 66666; break;
         default: oppo_chess_value = 0; break;
       }
-      if(self_chess_value != 0){
-        self_chess_value *= (self_mul - attacking_possibility(i, j, board.board, player));
-        self_chess_value -= (oppo_chess_value * oppo_mul);
-        value += self_chess_value;
-      }
+      //attacked possibility
+      if(self_chess_value != 0)
+        attacked_poss_value = attacked_possibility(i, j, board.board, player);
+      //sum
+      value += (self_chess_value * self_mul - oppo_chess_value * oppo_mul - attacked_poss_value * attacked_poss_mul);
     }
   }
+
   return value;
 }
 
