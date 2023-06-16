@@ -13,7 +13,7 @@ Move Minimax::get_move(){ //present state
   Move ans_move;
   int ans_score = 0;
   self_player = this->state->player;
-  int tmp_int;
+  int tmp_score;
   int size = (int)this->state->legal_actions.size();
 
   for(int i = 0; i < size; i++){
@@ -21,16 +21,22 @@ Move Minimax::get_move(){ //present state
     this->next_node.push_back(tmp);
     if(!this->next_node[i]->state->legal_actions.size())
       this->next_node[i]->state->get_legal_actions();
-    tmp_int = this->next_node[i]->select_score(1);
+    if(this->next_node[i]->state->game_state == WIN) tmp_score = -666666;
+    else tmp_score = this->next_node[i]->select_score(1);
 
-    if(tmp_int > ans_score || ans_score == 0){
-      ans_score = tmp_int;
-      ans_move = this->state->legal_actions[i];
-    }else if(std::abs(tmp_int - ans_score) <= 5 && (int)std::rand()%3 == 0){ //if poss gets close, choose random
-      ans_score = tmp_int;
+    if(tmp_score > ans_score || ans_score == 0
+      || (std::abs(tmp_score - ans_score) <= 6 && (int)std::rand() % 3 == 0)){
+      ans_score = tmp_score;
       ans_move = this->state->legal_actions[i];
     }
   }  
+  
+  //destroy
+  while(!this->next_node.empty()){
+    delete this->next_node.back();
+    this->next_node.pop_back();
+  }
+
   return ans_move;
 }
 
@@ -51,16 +57,22 @@ int Minimax::select_score(int depth){
       this->next_node[i]->state->get_legal_actions();
 
     //calculate score
-    if(this->next_node[i]->state->game_state == WIN) this->state->player == self_player ? tmp_score = -6666666 : tmp_score = 6666666;
+    if(this->next_node[i]->state->game_state == WIN) this->state->player == self_player ? tmp_score = -666666 : tmp_score = 666666;
     else if(depth + 1 < MAX_DEPTH) tmp_score = this->next_node[i]->select_score(depth + 1);
-    else tmp_score = this->next_node[i]->state->evaluate(); //evaluate for opponent //is next state player
+    else tmp_score = this->next_node[i]->state->evaluate(); 
 
-    //choose move //since it evaluate for the reversing player
+    //choose score
     if(this->state->player == self_player){ 
-      (ans_score == 0 || tmp_score > ans_score) ? ans_score = tmp_score : 1;
+      (tmp_score > ans_score || ans_score == 0) ? ans_score = tmp_score : 1;
     }else{
-      (ans_score == 0 || tmp_score < ans_score) ? ans_score = tmp_score : 1;
+      (tmp_score < ans_score || ans_score == 0) ? ans_score = tmp_score : 1;
     }
+  }
+
+  //destroy
+  while(!this->next_node.empty()){
+    delete this->next_node.back();
+    this->next_node.pop_back();
   }
 
   return ans_score;

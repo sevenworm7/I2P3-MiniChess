@@ -14,4 +14,11 @@ public:
   
   Minimax(State* s){ state = s; }
   Minimax(){ state = nullptr; }
+  ~Minimax(){ 
+    delete state; state = nullptr;
+    while(!next_node.empty()){
+      delete next_node.back();
+      next_node.pop_back();
+    }
+  }
 };
