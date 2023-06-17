@@ -23,7 +23,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
         case pawn:
           if((opponent == 0 && i-x==1 && std::abs(j-y)==1)
           || (opponent == 1 && x-i==1 && std::abs(y-j)==1))
-            value += 10; //eating possibility
+            value += 8; //eating possibility
           break;
         case rook: 
           if(i-x==0 || j-y==0){
@@ -31,7 +31,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
             int yy = y-j!=0 ? (y-j)/std::abs(y-j) : 0;
             for(int k = 1; ; k++){
               if(i + xx*k == x && j + yy*k == y){
-                value += 8;
+                value += 6;
                 break;
               }else if(board[player][i + xx*k][j + yy*k] != empty 
               || board[opponent][i + xx*k][j + yy*k] != empty) break;
@@ -41,7 +41,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
         case knight: 
           if((std::abs(i-x)==1 && std::abs(j-y)==2)
           || (std::abs(i-x)==2 && std::abs(j-y)==1))
-            value += 8;
+            value += 6;
           break;
         case bishop: 
           if(std::abs(i-x) == std::abs(j-y)){
@@ -49,7 +49,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
             int yy = (y-j)/std::abs(y-j);
             for(int k = 1; ; k++){
               if(i + xx*k == x && j + yy*k == y){
-                value += 8;
+                value += 6;
                 break;
               }else if(board[player][i + xx*k][j + yy*k] != empty 
               || board[opponent][i + xx*k][j + yy*k] != empty) break;
@@ -62,7 +62,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
             int yy = y-j!=0 ? (y-j)/std::abs(y-j) : 0;
             for(int k = 1; ; k++){
               if(i + xx*k == x && j + yy*k == y){
-                value += 7;
+                value += 5;
                 break;
               }else if(board[player][i + xx*k][j + yy*k] != empty 
               || board[opponent][i + xx*k][j + yy*k] != empty) break;
@@ -70,7 +70,7 @@ int attacked_possibility(int x, int y, char (*board)[BOARD_H][BOARD_W], int play
           }
           break;
         case king: 
-          if(std::abs(i-x)<=1 && std::abs(j-y)<=1) value += 6;
+          if(std::abs(i-x)<=1 && std::abs(j-y)<=1) value += 4;
           break;
         default: 
           break;
@@ -98,8 +98,8 @@ int State::evaluate(){ //state value function
     for(int j = 0; j < BOARD_W; j++){
       //self chess value determine
       switch((int)board.board[player][i][j]){
-        case pawn: player == 1 ? self_chess_value = attacked_poss_mul = 2 + i / 2
-          : self_chess_value = attacked_poss_mul = 2 + (BOARD_H - i) / 2; break; //distance to become queen
+        case pawn: player == 1 ? self_chess_value = attacked_poss_mul = 2 + i / 8
+          : self_chess_value = attacked_poss_mul = 2 + (BOARD_H - i) / 8; break;
         case rook: self_chess_value = attacked_poss_mul = 12; break;
         case knight: self_chess_value = attacked_poss_mul = 9; break;
         case bishop: self_chess_value = attacked_poss_mul = 12; break;
@@ -109,13 +109,13 @@ int State::evaluate(){ //state value function
       }
       //opponent chess value determine
       switch((int)board.board[1-player][i][j]){
-        case pawn: player == 0 ? oppo_chess_value = 2 + i / 2 
-          : oppo_chess_value = 2 + (BOARD_H - i) / 2; break; //distance to become queen
+        case pawn: player == 0 ? oppo_chess_value = 4 + i / 8 
+          : oppo_chess_value = 4 + (BOARD_H - i) / 8; break;
         case rook: oppo_chess_value = 12; break;
         case knight: oppo_chess_value = 9; break;
         case bishop: oppo_chess_value = 12; break;
         case queen: oppo_chess_value = 15; break;
-        case king: oppo_chess_value = 66666666; break;
+        case king: oppo_chess_value = 666666; break; //less little
         default: oppo_chess_value = 0; break;
       }
       //attacked possibility

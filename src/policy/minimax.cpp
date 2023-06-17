@@ -21,11 +21,11 @@ Move Minimax::get_move(){ //present state
     this->next_node.push_back(tmp);
     if(!this->next_node[i]->state->legal_actions.size())
       this->next_node[i]->state->get_legal_actions();
-    if(this->next_node[i]->state->game_state == WIN) tmp_score = -666666;
+    if(this->next_node[i]->state->game_state == WIN) tmp_score = -666666; 
     else tmp_score = this->next_node[i]->select_score(1);
 
-    if(tmp_score > ans_score || ans_score == 0
-      || (std::abs(tmp_score - ans_score) <= 6 && (int)std::rand() % 3 == 0)){
+    if(tmp_score > ans_score || ans_score == 0){ 
+      //|| (std::abs(tmp_score - ans_score) <= 6 && (int)std::rand() % 3 == 0)){
       ans_score = tmp_score;
       ans_move = this->state->legal_actions[i];
     }

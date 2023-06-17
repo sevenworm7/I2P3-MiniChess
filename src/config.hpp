@@ -16,7 +16,7 @@
 
 /*
 #define PIECE_STR_LEN 1
-const char PIECE_TABLE[2][7][5] = {
+const char piece_table[2][7][5] = {
   {" ", "♟", "♜", "♞", "♝", "♛", "♚"},
   {" ", "♙", "♖", "♘", "♗", "♕", "♔"},
 };
@@ -24,7 +24,7 @@ const char PIECE_TABLE[2][7][5] = {
 
 #define PIECE_STR_LEN 2
 const char PIECE_TABLE[2][7][5] = {
-  {"  ", "wP", "wR", "wN", "wB", "wQ", "wK"},
-  {"  ", "bP", "bR", "bN", "bB", "bQ", "bK"},
+  {"  ", "wP", "wR", "wn", "wB", "wQ", "wK"},
+  {"  ", "bP", "bR", "bn", "bB", "bQ", "bK"},
 };
 //empty, pawn, rook, knight, bishop, queen, king
