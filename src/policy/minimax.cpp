@@ -26,12 +26,10 @@ Move minimax::get_move(){ //present state
         ans_move = this->state->legal_actions[i];
     }
   }
-  /*
   while(!this->next_node.empty()){ //delete
     delete this->next_node.back();
     this->next_node.pop_back();
   } //doesnt delete this node
-  */
   return ans_move;
 }
 
@@ -55,11 +53,9 @@ int minimax::extend(int depth){
       if(tmp_score < ans_score || ans_score == 0) ans_score = tmp_score;
     }
   }
-  /*
   while(!this->next_node.empty()){ //delete
     delete this->next_node.back();
     this->next_node.pop_back();
   } //doesnt delete this node
-  */
   return ans_score;
 }

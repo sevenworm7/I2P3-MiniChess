@@ -5,16 +5,8 @@
 #include "../state/state.hpp"
 #include "../policy/minimax.hpp"
 
-//it just print something?! only the last move will be valid
-//10 second, 4 gb
-
 State* s;
 
-/**
- * @brief Read the board from the file
- * 
- * @param fin 
- */
 void read_board(std::ifstream& fin) {
   Board board;
   int player;
@@ -34,29 +26,14 @@ void read_board(std::ifstream& fin) {
   s->get_legal_actions();
 }
 
-
-/**
- * @brief randomly choose a move and then write it into output file
- * 
- * @param fout 
- */
 void write_valid_spot(std::ofstream& fout) {
-  // Keep updating the output until getting killed.
-  // how?!!
-  Minimax* root = new Minimax(s);
+  minimax* root = new minimax(s);
   auto move = root->get_move();
   fout << move.first.first << " " << move.first.second << " "\
        << move.second.first << " " << move.second.second << std::endl;
   fout.flush();
 }
 
-
-/**
- * @brief Main function for player
- * 
- * @param argv 
- * @return int 
- */
 int main(int, char** argv) {
   srand(RANDOM_SEED);
   std::ifstream fin(argv[1]);

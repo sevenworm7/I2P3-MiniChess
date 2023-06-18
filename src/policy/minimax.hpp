@@ -2,7 +2,7 @@
 #include <vector>
 #include "../state/state.hpp"
 
-#define MAX_DEPTH 3 
+#define MAX_DEPTH 3 //max 3
 
 class minimax{
 public:

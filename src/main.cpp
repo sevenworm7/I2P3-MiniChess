@@ -11,11 +11,19 @@
 
 /* some command
 cd /mnt/c/Users/Jay/Documents/GitHub/I2P3-MiniChess
-./build/main ./build/player_minimax ./build/player_random
-./build/main ./build/player_random ./build/player_minimax
-./build/main ./build/player_minimax ./build/player_minimax
-./build/main ./build/player_minimax ./build/baselines/linux/baseline1    
-./build/main ./build/player_minimax ./build/baselines/linux/baseline2   
+
+./build/main 
+
+./build/player_minimax
+
+./build/player_alpha_beta
+
+./build/player_random
+
+./baselines/linux/baseline1
+
+./baselines/linux/baseline2
+
 */
 
 /*Board Size, Don't change!*/
