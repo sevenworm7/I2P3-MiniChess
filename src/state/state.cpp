@@ -7,11 +7,32 @@
 #include "./state.hpp"
 #include "../config.hpp"
 
+static const int move_table_rook_bishop[8][7][2] = {
+  {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}},
+  {{0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}},
+  {{1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0}},
+  {{-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0}},
+  {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
+  {{1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7}},
+  {{-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7}},
+  {{-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}},
+};
+static const int move_table_knight[8][2] = {
+  {1, 2}, {1, -2},
+  {-1, 2}, {-1, -2},
+  {2, 1}, {2, -1},
+  {-2, 1}, {-2, -1},
+};
+static const int move_table_king[8][2] = {
+  {1, 0}, {0, 1}, {-1, 0}, {0, -1}, 
+  {1, 1}, {1, -1}, {-1, 1}, {-1, -1},
+};
+
 enum Chess{ // 0 2 6 7 8 20 100
   empty = 0, pawn = 1, rook = 2, knight = 3, bishop = 4, queen = 5, king = 6
 }; //add
 
-int n_player_attack_xy(int player, int x, int y, char (*board)[BOARD_H][BOARD_W]){
+int n_player_attack_xy(bool v_needed, int player, int x, int y, char (*board)[BOARD_H][BOARD_W]){
   const int div = 3;
   int value = 0;
 
@@ -73,9 +94,25 @@ int n_player_attack_xy(int player, int x, int y, char (*board)[BOARD_H][BOARD_W]
         default: 
           break;
       }
+      if(!v_needed && value != 0) return 1; 
     }
   }
   return value / div;
+}
+
+int oppo_king_left_choice(int player, int k_x, int k_y, char (*board)[BOARD_H][BOARD_W]){ 
+  int opponent = player - 1;
+  int choice = 9; //include oppo king do nothing
+  int x, y;
+
+  if(n_player_attack_xy(false, player, k_x, k_y, board)) choice--;
+  for(int i = 0; i < 8; i++){
+    x = k_x + move_table_king[i][0]; y = k_y + move_table_king[i][1];
+    if(x < 0 || BOARD_H <= x || y < 0 || BOARD_W <= y) continue;
+    else if(board[player][x][y] != empty || board[opponent][x][y] != empty) choice--;
+    else if(n_player_attack_xy(false, player, x, y, board)) choice--;
+  }
+  return choice;
 }
 
 /**
@@ -88,11 +125,12 @@ int State::evaluate(){ //state value function
   const int self_mul = 10;
   const int oppo_mul = 9;
   const int attacked_poss_mul = 1;
+  const int oppo_king_left_mul = 3;
 
   int value = 0;
   int opponent = 1 - player;
   int self_chess_value; //positive
-  int oppo_chess_value, attacked_poss_value; //negative
+  int oppo_chess_value, attacked_poss_value, oppo_king_left_c; //negative
   
   for(int i = 0; i < BOARD_H; i++){
     for(int j = 0; j < BOARD_W; j++){
@@ -115,11 +153,14 @@ int State::evaluate(){ //state value function
         default: oppo_chess_value = 0; break;
       }
       if(self_chess_value != 0)
-        attacked_poss_value = self_chess_value * n_player_attack_xy(opponent, i, j, board.board); //attacked possibility
+        attacked_poss_value = self_chess_value * n_player_attack_xy(true, opponent, i, j, board.board); //attacked possibility
       else attacked_poss_value = 0;
+      if((int)board.board[opponent][i][j] == king) 
+        oppo_king_left_c = oppo_king_left_choice(player, i, j, board.board); //oppo king left choice
+      else oppo_king_left_c = 0;
 
       value += ((self_chess_value * self_mul) //sum
-        - (oppo_chess_value * oppo_mul + attacked_poss_value * attacked_poss_mul));
+        - (oppo_chess_value * oppo_mul + attacked_poss_value * attacked_poss_mul + oppo_king_left_c * oppo_king_left_mul));
     }
   }
 
@@ -155,29 +196,6 @@ State* State::next_state(Move move){
     next_state->get_legal_actions();
   return next_state;
 }
-
-
-static const int move_table_rook_bishop[8][7][2] = {
-  {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7}},
-  {{0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}},
-  {{1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0}},
-  {{-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0}},
-  {{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}},
-  {{1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7}},
-  {{-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7}},
-  {{-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}},
-};
-static const int move_table_knight[8][2] = {
-  {1, 2}, {1, -2},
-  {-1, 2}, {-1, -2},
-  {2, 1}, {2, -1},
-  {-2, 1}, {-2, -1},
-};
-static const int move_table_king[8][2] = {
-  {1, 0}, {0, 1}, {-1, 0}, {0, -1}, 
-  {1, 1}, {1, -1}, {-1, 1}, {-1, -1},
-};
-
 
 /**
  * @brief get all legal actions of now state
