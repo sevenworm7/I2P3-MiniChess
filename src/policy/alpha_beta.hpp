@@ -2,15 +2,13 @@
 #include <vector>
 #include "../state/state.hpp"
 
-#define MAX_DEPTH 4 //max 4 //not stable
-
 class alpha_beta{
 public:
   State* state;
-  std::vector<alpha_beta*> next_node;
+  std::vector<alpha_beta*> next_node; //can change to single pointer?
   int alpha, beta;
 
-  Move get_move(std::ofstream& fout);
+  Move get_move(int max_d);
   int extend(int depth);
   
   alpha_beta(State* s, int a, int b) : state(s), alpha(a), beta(b) {}

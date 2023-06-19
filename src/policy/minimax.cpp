@@ -1,12 +1,13 @@
 #include <cstdlib>
 #include <vector>
+#include <fstream>
 
 #include "../state/state.hpp"
 #include "./minimax.hpp"
 
 static int self_player; //let all evaluater be the self_player
 
-Move minimax::get_move(){ //present state
+Move minimax::get_move(std::ofstream& fout){ //present state
   int ans_score = 0;
   Move ans_move;
   int tmp_score;
@@ -24,6 +25,9 @@ Move minimax::get_move(){ //present state
     if(tmp_score > ans_score || ans_score == 0){
         ans_score = tmp_score;
         ans_move = this->state->legal_actions[i];
+        fout << ans_move.first.first << " " << ans_move.first.second << " "\
+          << ans_move.second.first << " " << ans_move.second.second << std::endl;
+        fout.flush();
     }
   }
   while(!this->next_node.empty()){ //delete

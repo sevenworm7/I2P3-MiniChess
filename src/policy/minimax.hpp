@@ -9,7 +9,7 @@ public:
   State* state;
   std::vector<minimax*> next_node;
 
-  Move get_move();
+  Move get_move(std::ofstream& fout);
   int extend(int depth);
   
   minimax(State* s){ state = s; }

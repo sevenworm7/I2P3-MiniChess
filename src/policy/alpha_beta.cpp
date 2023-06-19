@@ -6,12 +6,14 @@
 #include "./alpha_beta.hpp"
 
 static int self_player; //let all evaluater be the self_player
+static int max_depth;
 
-Move alpha_beta::get_move(std::ofstream& fout){ //present state //alpha = beta = 0
+Move alpha_beta::get_move(int max_d){ //present state //alpha = beta = 0
   int ans_score = 0;
   Move ans_move;
   int tmp_score;
   self_player = this->state->player;
+  max_depth = max_d;
 
   if(this->state->legal_actions.empty())
     this->state->get_legal_actions();
@@ -26,9 +28,6 @@ Move alpha_beta::get_move(std::ofstream& fout){ //present state //alpha = beta =
       this->alpha = this->next_node[i]->beta; //tmp_score
       ans_score = tmp_score;
       ans_move = this->state->legal_actions[i];
-      fout << ans_move.first.first << " " << ans_move.first.second << " " //avoid out of time
-        << ans_move.second.first << " " << ans_move.second.second << std::endl;
-      fout.flush();
     }
     if(this->alpha != 0 && this->beta != 0 && this->alpha >= this->beta) break; //needless, since beta = 0 forever
   }
@@ -52,7 +51,7 @@ int alpha_beta::extend(int depth){
     if(this->next_node[i]->state->legal_actions.empty())
       this->next_node[i]->state->get_legal_actions();
     if(this->next_node[i]->state->game_state == WIN) continue; //opponent will win, neglect this choice
-    if(depth >= MAX_DEPTH && this->next_node[i]->state->player == self_player) //control that evaluater will be self player
+    if(depth >= max_depth && this->next_node[i]->state->player == self_player) //control that evaluater will be self player
       tmp_score = this->next_node[i]->alpha = this->next_node[i]->state->evaluate(); 
     else tmp_score = this->next_node[i]->extend(depth + 1);
 
