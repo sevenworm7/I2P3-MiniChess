@@ -1,12 +1,13 @@
 #include <cstdlib>
 #include <vector>
+#include <fstream>
 
 #include "../state/state.hpp"
 #include "./alpha_beta.hpp"
 
 static int self_player; //let all evaluater be the self_player
 
-Move alpha_beta::get_move(){ //present state //alpha = beta = 0
+Move alpha_beta::get_move(std::ofstream& fout){ //present state //alpha = beta = 0
   int ans_score = 0;
   Move ans_move;
   int tmp_score;
@@ -25,6 +26,9 @@ Move alpha_beta::get_move(){ //present state //alpha = beta = 0
       this->alpha = this->next_node[i]->beta; //tmp_score
       ans_score = tmp_score;
       ans_move = this->state->legal_actions[i];
+      fout << ans_move.first.first << " " << ans_move.first.second << " " //avoid out of time
+        << ans_move.second.first << " " << ans_move.second.second << std::endl;
+      fout.flush();
     }
     if(this->alpha != 0 && this->beta != 0 && this->alpha >= this->beta) break; //needless, since beta = 0 forever
   }

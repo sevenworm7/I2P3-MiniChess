@@ -28,7 +28,7 @@ void read_board(std::ifstream& fin) {
 
 void write_valid_spot(std::ofstream& fout) {
   alpha_beta* root = new alpha_beta(s, 0, 0);
-  auto move = root->get_move();
+  auto move = root->get_move(fout);
   fout << move.first.first << " " << move.first.second << " "\
        << move.second.first << " " << move.second.second << std::endl;
   fout.flush();
