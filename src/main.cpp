@@ -14,6 +14,8 @@ cd /mnt/c/Users/Jay/Documents/GitHub/I2P3-MiniChess
 
 ./build/main 
 
+./build/player_submission
+
 ./build/player_minimax
 
 ./build/player_alpha_beta

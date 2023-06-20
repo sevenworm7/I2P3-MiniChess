@@ -3,7 +3,7 @@
 
 #include "../config.hpp"
 #include "../state/state.hpp"
-#include "../policy/alpha_beta.hpp"
+#include "../policy/submission.hpp"
 
 State* s;
 
@@ -27,13 +27,11 @@ void read_board(std::ifstream& fin) {
 }
 
 void write_valid_spot(std::ofstream& fout) {
-  alpha_beta* root = new alpha_beta(s, 0, 0);
-  for(int i = 1; ; i++){ //run until being killed
-    auto move = root->get_move(i);
-    fout << move.first.first << " " << move.first.second << " "\
-      << move.second.first << " " << move.second.second << std::endl;
-    fout.flush();
-  }
+  submission* root = new submission(s);
+  auto move = root->get_move(fout);
+  fout << move.first.first << " " << move.first.second << " "\
+       << move.second.first << " " << move.second.second << std::endl;
+  fout.flush();
 }
 
 int main(int, char** argv) {

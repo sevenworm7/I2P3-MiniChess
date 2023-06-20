@@ -2,19 +2,19 @@
 #include <vector>
 #include "../state/state.hpp"
 
-class alpha_beta{
+#define MAX_DEPTH 3 //max 3
+
+class submission{
 public:
   State* state;
-  std::vector<alpha_beta*> next_node; //can change to single pointer?
-  int alpha, beta;
+  std::vector<submission*> next_node;
 
-  Move get_move(int max_d);
+  Move get_move(std::ofstream& fout);
   int extend(int depth);
   
-  alpha_beta(State* s, int a, int b) : state(s), alpha(a), beta(b) {}
-  alpha_beta(State* s) : state(s) {}
-  alpha_beta() : state(nullptr) {}
-  ~alpha_beta(){ 
+  submission(State* s){ state = s; }
+  submission(){ state = nullptr; }
+  ~submission(){ 
     delete state; state = nullptr;
     while(!next_node.empty()){
       delete next_node.back();
